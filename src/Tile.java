@@ -2,33 +2,62 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class Tile {
 	public static final int WIDTH = 80;
 	public static final int HEIGHT = 80;
-	public static final int SLIDE_SPEED = 20;
-	public static final int ARC_WIDTH = 10;
-	public static final int ARC_HEIGHT = 10;
+	public static final int SLIDE_SPEED = 15;
+	public static final int ARC_WIDTH = 5;
+	public static final int ARC_HEIGHT = 5;
 	
 	private int value;
 	private BufferedImage tileImage;
 	private Color background;
 	private Color text;
 	private Font font;
+	private Point slideTo;
 	private int x;
 	private int y;
+	//If it is going to play the Animation
+	private boolean beginningAnimation = true;
+	private double scaleFirst = 0.1; //Keep scaling up every update
+	private BufferedImage beginningImage;
+	private boolean combineAnimation = false;
+	private double scaleCombine = 1.2;
+	private BufferedImage combineImage;
+	
+	private boolean canCombine = true;
 	
 	public Tile(int value, int x, int y) {
 		this.value = value;
 		this.x = x;
 		this.y = y;
+		slideTo = new Point(x,y); //Slide to whatever planned point
 		tileImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		beginningImage = new BufferedImage(WIDTH,HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		combineImage = new BufferedImage(WIDTH*2,HEIGHT*2, BufferedImage.TYPE_INT_ARGB);
 		drawImage();
 	}
-	
+	public Tile(int value, int x, int y, boolean bi, boolean bc) {
+		this.value = value;
+		this.x = x;
+		this.y = y;
+		slideTo = new Point(x,y); //Slide to whatever planned point
+		tileImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		beginningImage = new BufferedImage(WIDTH,HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		combineImage = new BufferedImage(WIDTH*2,HEIGHT*2, BufferedImage.TYPE_INT_ARGB);
+		beginningAnimation = bi;
+		combineAnimation = bc; 
+		drawImage();
+	}
 	public int getValue() {
 		return value;
+	}
+	public void setValue(int v) {
+		this.value = v;
+		drawImage();
 	}
 	public void drawImage() {
 		Graphics2D g = (Graphics2D) tileImage.getGraphics();
@@ -103,9 +132,113 @@ public class Tile {
 		g.dispose();
 	}
 	public void update() {
-		
+		double t = 0.01;
+		if (beginningAnimation) {
+			AffineTransform transform = new AffineTransform();
+			//Find the size of the transformed image
+			transform.translate(WIDTH/2 - scaleFirst* WIDTH/2, HEIGHT/2 - scaleFirst* HEIGHT/2);
+			transform.scale(scaleFirst, scaleFirst);
+			Graphics2D g2d = (Graphics2D) beginningImage.getGraphics();
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+			g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_LCD_CONTRAST, 100);
+			g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+			g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+			g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE); 
+			g2d.setColor(background);
+			g2d.fillRect(0, 0, WIDTH, HEIGHT);
+			//g2d.drawImage(tileImage, transform, null);
+			
+			while (scaleFirst < 3) {
+				scaleFirst +=t*t*(3-2*t);
+				transform.scale(scaleFirst, scaleFirst);
+				g2d.drawImage(tileImage, transform, null);
+				t = t+0.001;
+			}
+			//scaleFirst *= (1+0.007);
+			g2d.dispose();
+			beginningAnimation = false;
+			//if (scaleFirst >= 3) beginningAnimation = false;
+		} else if (combineAnimation) {
+			AffineTransform transform = new AffineTransform();
+			//Find the size of the transformed image
+			transform.translate(WIDTH/2 - scaleCombine* WIDTH/2, HEIGHT/2 - scaleCombine* HEIGHT/2);
+			transform.scale(scaleCombine, scaleCombine);
+			Graphics2D g2d = (Graphics2D) combineImage.getGraphics();
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+			g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_LCD_CONTRAST, 100);
+			g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+			g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+			g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE); 
+			g2d.setColor(background);
+			g2d.fillRect(0, 0, WIDTH, HEIGHT);
+			//g2d.drawImage(tileImage, transform, null);
+			//double t = 0.1;
+			while (scaleCombine > 0) {
+				scaleCombine = (t*t*(3-2*t));
+				transform.scale(scaleCombine, scaleCombine);
+				g2d.drawImage(tileImage, transform, null);
+				t += 0.001;
+			}
+			//scaleCombine /= (1+0.007);
+			g2d.dispose();
+			combineAnimation = false;
+			//if (scaleCombine <= 1) combineAnimation = false;
+		}
 	}
 	public void render(Graphics2D g) {
-		g.drawImage(tileImage, x, y, null);
+		if (beginningAnimation) {
+			g.drawImage(beginningImage, x, y, null);
+		} else if (combineAnimation) {
+			g.drawImage(tileImage, (int) (x + WIDTH/2 - scaleCombine*WIDTH/2), (int) (y + HEIGHT/2 - scaleCombine*HEIGHT/2), null);
+			//Bigger than 
+		} else {
+			g.drawImage(tileImage, x, y, null);
+		}
+	}
+
+	public boolean canCombine() {
+		return canCombine;
+	}
+
+	public void setCanCombine(boolean canCombine) {
+		this.canCombine = canCombine;
+	}
+
+	public Point getSlideTo() {
+		return slideTo;
+	}
+
+	public void setSlideTo(Point slideTo) {
+		this.slideTo = slideTo;
+	}
+	public int getX() {
+		return x;
+	}
+	public void setX(int x) {
+		this.x = x;
+	}
+	public int getY() {
+		return y;
+	}
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public boolean isCombineAnimation() {
+		return combineAnimation;
+	}
+
+	public void setCombineAnimation(boolean combineAnimation) {
+		this.combineAnimation = combineAnimation;
 	}
 }

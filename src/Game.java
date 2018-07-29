@@ -36,8 +36,21 @@ public class Game extends JPanel implements Runnable, KeyListener{
 	}
 	
 	public void update() {
+		if (Keyboard.typed(KeyEvent.VK_UP)) {
+			System.out.println("Pressed Up");
+		}
+		if (Keyboard.typed(KeyEvent.VK_DOWN)) {
+			System.out.println("Pressed DOWN");
+		}
+		if (Keyboard.typed(KeyEvent.VK_LEFT)) {
+			System.out.println("Pressed LEFT");
+		}
+		if (Keyboard.typed(KeyEvent.VK_RIGHT)) {
+			System.out.println("Pressed RIGHT ");
+		}
 		board.update();
 		Keyboard.update();
+		
 	}
 	public void render() {
 		//Graphics object implements how the image is drawn 
@@ -97,10 +110,10 @@ public class Game extends JPanel implements Runnable, KeyListener{
 	public void run() {
 		// TODO Auto-generated method stub
 		int fps = 0;
-		int update = 0;
+		int updates = 0;
 		long fpsTimer = System.currentTimeMillis();
 		//How many nanoseconds there are between updates
-		double nsPerUpdate = 10^9/60;
+		double nsPerUpdate = 1000000000.0/60;
 		
 		
 		//Last Update Time in nanoseconds
@@ -115,7 +128,7 @@ public class Game extends JPanel implements Runnable, KeyListener{
 			boolean shouldRender = false;
 			//Update Queue
 			while (unprocessed >= 1) {
-				update ++;
+				updates ++;
 				update();
 				unprocessed --;
 				shouldRender = true;
@@ -136,10 +149,10 @@ public class Game extends JPanel implements Runnable, KeyListener{
 		//FPS Timer 
 		//If the current time is larger than fpsTimer by 1s
 		if (System.currentTimeMillis() - fpsTimer >1000) {
-			System.out.printf("%d fps %d upates",fps, update);
+			System.out.printf("%d fps %d upates",fps, updates);
 			System.out.println();
 			fps = 0;
-			update = 0;
+			updates = 0;
 			fpsTimer += 1000;
 		}
 	}

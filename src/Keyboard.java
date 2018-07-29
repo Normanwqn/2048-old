@@ -9,8 +9,18 @@ public class Keyboard {
 		
 	}
 	public static void update() {
-		for (int i = 0; i < 256; i++) {
+		/*for (int i = 0; i < 256; i++) {
 			prev[i] = pressed[i];
+		}*/
+		/*prev[KeyEvent.VK_LEFT] = pressed[KeyEvent.VK_LEFT];
+		prev[KeyEvent.VK_UP] = pressed[KeyEvent.VK_UP];
+		prev[KeyEvent.VK_RIGHT] = pressed[KeyEvent.VK_RIGHT];
+		prev[KeyEvent.VK_DOWN] = pressed[KeyEvent.VK_DOWN];*/
+		for (int i = 0; i < 4; i++) {
+			if (i == 0) prev[KeyEvent.VK_LEFT] = pressed[KeyEvent.VK_LEFT];
+			if (i == 1) prev[KeyEvent.VK_RIGHT] = pressed[KeyEvent.VK_RIGHT];
+			if (i == 2) prev[KeyEvent.VK_UP] = pressed[KeyEvent.VK_UP];
+			if (i == 3) prev[KeyEvent.VK_DOWN] = pressed[KeyEvent.VK_DOWN];
 		}
 	}
 	
@@ -25,6 +35,7 @@ public class Keyboard {
 	public static boolean typed(int keyEvent) {
 		return !pressed[keyEvent] && prev[keyEvent];
 	}
+	
 	
 	//public static 
 }
