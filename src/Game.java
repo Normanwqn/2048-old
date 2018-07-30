@@ -22,6 +22,7 @@ public class Game extends JPanel implements Runnable, KeyListener{
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	//Double Buffering 
 	private GameBoard board;
+	//public static AI agent;
 	
 	private long startTime;
 	private long timeElapsed;
@@ -31,6 +32,7 @@ public class Game extends JPanel implements Runnable, KeyListener{
 		setFocusable(true); //Being able to receive input
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		addKeyListener(this);
+		
 		board = new GameBoard(WIDTH/2 - GameBoard.BOARD_WIDTH/2, HEIGHT - GameBoard.BOARD_HEIGHT -10);
 		
 	}
@@ -50,6 +52,7 @@ public class Game extends JPanel implements Runnable, KeyListener{
 		}
 		board.update();
 		Keyboard.update();
+		
 		
 	}
 	public void render() {

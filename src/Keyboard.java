@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 public class Keyboard {
 	public static boolean[] pressed = new boolean[256];
 	public static boolean[] prev = new boolean[256];
-	
+	public static boolean[] AI_Input = new boolean[256];
 	private Keyboard() {
 		
 	}
@@ -22,6 +22,22 @@ public class Keyboard {
 			if (i == 2) prev[KeyEvent.VK_UP] = pressed[KeyEvent.VK_UP];
 			if (i == 3) prev[KeyEvent.VK_DOWN] = pressed[KeyEvent.VK_DOWN];
 		}
+		for (int i = 0; i < 256; i++) {
+			AI_Input[i] = false;
+		}
+		String AINext = GameBoard.agent.nextMove();
+		
+		if (AINext != null) {
+			switch (AINext) {
+			case "LEFT": AI_Input[KeyEvent.VK_LEFT] = true; 
+				break;
+			case "RIGHT": AI_Input[KeyEvent.VK_RIGHT] = true;
+				break;
+			case "UP": AI_Input[KeyEvent.VK_KP_UP] = true;
+				break;
+			case "DOWN": AI_Input[KeyEvent.VK_DOWN] = true;
+			}
+		}
 	}
 	
 	public static void keyPressed(KeyEvent e) {
@@ -33,7 +49,8 @@ public class Keyboard {
 	}
 	
 	public static boolean typed(int keyEvent) {
-		return !pressed[keyEvent] && prev[keyEvent];
+		return (!pressed[keyEvent] && prev[keyEvent]) || AI_Input[keyEvent];
+		
 	}
 	
 	

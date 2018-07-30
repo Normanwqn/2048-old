@@ -132,12 +132,12 @@ public class Tile {
 		g.dispose();
 	}
 	public void update() {
-		double t = 0.01;
+		//double t = 0.01;
 		if (beginningAnimation) {
 			AffineTransform transform = new AffineTransform();
 			//Find the size of the transformed image
-			transform.translate(WIDTH/2 - scaleFirst* WIDTH/2, HEIGHT/2 - scaleFirst* HEIGHT/2);
-			transform.scale(scaleFirst, scaleFirst);
+			transform.translate(WIDTH/2 - scaleFirst* WIDTH/2, HEIGHT/2 - scaleFirst* HEIGHT/2); //Go to the middle; 
+			transform.scale(scaleFirst, scaleFirst); 
 			Graphics2D g2d = (Graphics2D) beginningImage.getGraphics();
 			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -151,18 +151,19 @@ public class Tile {
 			g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE); 
 			g2d.setColor(background);
 			g2d.fillRect(0, 0, WIDTH, HEIGHT);
-			//g2d.drawImage(tileImage, transform, null);
+			g2d.drawImage(tileImage, transform, null);
 			
-			while (scaleFirst < 3) {
+			/*while (scaleFirst < 3) {
 				scaleFirst +=t*t*(3-2*t);
 				transform.scale(scaleFirst, scaleFirst);
 				g2d.drawImage(tileImage, transform, null);
 				t = t+0.001;
-			}
+			}*/
+			scaleFirst +=0.1;
 			//scaleFirst *= (1+0.007);
 			g2d.dispose();
-			beginningAnimation = false;
-			//if (scaleFirst >= 3) beginningAnimation = false;
+			//beginningAnimation = false;
+			if (scaleFirst >= 1) beginningAnimation = false;
 		} else if (combineAnimation) {
 			AffineTransform transform = new AffineTransform();
 			//Find the size of the transformed image
@@ -181,25 +182,28 @@ public class Tile {
 			g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,RenderingHints.VALUE_STROKE_PURE); 
 			g2d.setColor(background);
 			g2d.fillRect(0, 0, WIDTH, HEIGHT);
-			//g2d.drawImage(tileImage, transform, null);
-			//double t = 0.1;
-			while (scaleCombine > 0) {
+			g2d.drawImage(tileImage, transform, null);
+			double t = 0.1;
+			/*while (scaleCombine > 0) {
 				scaleCombine = (t*t*(3-2*t));
 				transform.scale(scaleCombine, scaleCombine);
 				g2d.drawImage(tileImage, transform, null);
 				t += 0.001;
-			}
+			}*/
 			//scaleCombine /= (1+0.007);
 			g2d.dispose();
-			combineAnimation = false;
-			//if (scaleCombine <= 1) combineAnimation = false;
+			//combineAnimation = false;
+			
+			scaleCombine -=(t*t*(3-2*t));
+			t+=0.01;
+			if (scaleCombine <= 1) combineAnimation = false;
 		}
 	}
 	public void render(Graphics2D g) {
 		if (beginningAnimation) {
 			g.drawImage(beginningImage, x, y, null);
 		} else if (combineAnimation) {
-			g.drawImage(tileImage, (int) (x + WIDTH/2 - scaleCombine*WIDTH/2), (int) (y + HEIGHT/2 - scaleCombine*HEIGHT/2), null);
+			g.drawImage(combineImage, (int) (x + WIDTH/2 - scaleCombine*WIDTH/2), (int) (y + HEIGHT/2 - scaleCombine*HEIGHT/2), null);
 			//Bigger than 
 		} else {
 			g.drawImage(tileImage, x, y, null);
